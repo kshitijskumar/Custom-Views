@@ -1,9 +1,7 @@
 package com.example.customviews.canvas
 
 import android.content.Context
-import android.graphics.Canvas
-import android.graphics.Color
-import android.graphics.Paint
+import android.graphics.*
 import android.util.AttributeSet
 import android.util.Log
 import android.view.View
@@ -40,15 +38,15 @@ class CustomView1(context: Context, attrs: AttributeSet?) : View(context, attrs)
             MeasureSpec.EXACTLY -> widthSize
             //this mode is when you se the width as wrap content, here we set the desired width
             //either the size we want or the widthSize we extracted from specifications (minimum of these two is chosen)
-            MeasureSpec.AT_MOST -> Math.min(200, widthSize)
+            MeasureSpec.AT_MOST -> Math.min(400, widthSize)
             //this is for mode UNSPECIFIED which is used by Android system when it queries for the size
-            else -> 200
+            else -> 400
         }
 
         finalHeight = when (heightMode) {
             MeasureSpec.EXACTLY -> heightSize
-            MeasureSpec.AT_MOST -> Math.min(200, heightSize)
-            else -> 200
+            MeasureSpec.AT_MOST -> Math.min(400, heightSize)
+            else -> 400
         }
 
         //now we set the dimension we specified for our view
@@ -71,10 +69,11 @@ class CustomView1(context: Context, attrs: AttributeSet?) : View(context, attrs)
         super.onDraw(canvas)
         Log.d(TAG, "onDraw called")
         if (canvas == null) return
-        invalidate()
 //        drawLine(canvas)
 //        drawDiagonals(canvas)
-        drawDiagonalFlower(canvas)
+//        drawDiagonalFlower(canvas)
+        drawTriangle()
+        canvas.drawPath(path, paint)
     }
 
     private fun drawLine(canvas: Canvas) {
@@ -97,5 +96,23 @@ class CustomView1(context: Context, attrs: AttributeSet?) : View(context, attrs)
             finalHeight.toFloat() / 5,
             paint
         )
+    }
+
+    private val path = Path()
+
+    private fun drawTriangle() {
+        val initialX = finalWidth.toFloat() / 5;
+        val initialY = 0f
+
+        paint.color = color1
+
+        path.apply {
+            moveTo(initialX, initialY)
+            lineTo(finalWidth.toFloat() / 2, finalHeight.toFloat())
+            lineTo(4 * finalWidth.toFloat() / 5, 0f)
+            lineTo(initialX, initialY)
+            close()
+        }
+
     }
 }
