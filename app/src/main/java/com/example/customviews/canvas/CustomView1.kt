@@ -76,18 +76,21 @@ class CustomView1(context: Context, attrs: AttributeSet?) : View(context, attrs)
         canvas.drawPath(path, paint)
     }
 
+    //Part2.1
     private fun drawLine(canvas: Canvas) {
         //we draw a horizontal line on top of our view
         paint.color = color1
         canvas.drawLine(0f, 0f, (finalWidth / 2).toFloat(), 0f, paint)
     }
 
+    //Part2.2
     private fun drawDiagonals(canvas: Canvas) {
         paint.color = color1
         canvas.drawLine(0f, 0f, finalWidth.toFloat(), finalHeight.toFloat(), paint)
         canvas.drawLine(0f, finalHeight.toFloat(), finalWidth.toFloat(), 0f, paint)
     }
 
+    //Part2.3
     private fun drawDiagonalFlower(canvas: Canvas) {
         drawDiagonals(canvas)
         canvas.drawCircle(
@@ -98,6 +101,7 @@ class CustomView1(context: Context, attrs: AttributeSet?) : View(context, attrs)
         )
     }
 
+    //Part2.4
     private val path = Path()
 
     private fun drawTriangle() {
