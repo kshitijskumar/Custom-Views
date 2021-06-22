@@ -6,21 +6,24 @@ import android.hardware.SensorEventListener
 import android.hardware.SensorManager
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.util.Log
+import android.view.Surface
+import android.widget.TextView
 import com.example.customviews.canvas.CupView
-import kotlin.math.round
 
 class MainActivity : AppCompatActivity(), SensorEventListener {
 
     private val cupView by lazy {
         findViewById<CupView>(R.id.cup)
     }
+    private val tvAngle by lazy {
+        findViewById<TextView>(R.id.tvAngle)
+    }
 
     private lateinit var sensorManager: SensorManager
-    private val accelerometerReading = FloatArray(3)
-    private val magnetometerReading = FloatArray(3)
-    private val rotationMatrix = FloatArray(9)
-    private val orientationAngles = FloatArray(3)
+
+    private val mwindowManager by lazy {
+        window.windowManager
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -31,16 +34,7 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
 
     override fun onResume() {
         super.onResume()
-
-        sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)?.apply {
-            sensorManager.registerListener(
-                this@MainActivity,
-                this,
-                SensorManager.SENSOR_DELAY_NORMAL,
-                SensorManager.SENSOR_DELAY_UI
-            )
-        }
-        sensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD)?.apply {
+        sensorManager.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR).apply {
             sensorManager.registerListener(
                 this@MainActivity,
                 this,
@@ -56,30 +50,35 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
     }
 
     override fun onSensorChanged(event: SensorEvent?) {
-        if(event?.sensor?.type == Sensor.TYPE_ACCELEROMETER) {
-            System.arraycopy(event.values, 0, accelerometerReading, 0, accelerometerReading.size)
-        }else if(event?.sensor?.type == Sensor.TYPE_MAGNETIC_FIELD) {
-            System.arraycopy(event.values, 0, magnetometerReading, 0, magnetometerReading.size)
+        if(event?.sensor?.type == Sensor.TYPE_ROTATION_VECTOR) {
+            updateAngle(event.values)
         }
-
-        updateOrientationAngles()
     }
 
     override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {
-        Log.d("SensorListener", "onAccuracy changed for ${sensor?.name} to $accuracy")
+//        Log.d("SensorListener", "onAccuracy changed for ${sensor?.name} to $accuracy")
     }
 
-    private fun updateOrientationAngles() {
-        SensorManager.getRotationMatrix(
-            rotationMatrix,
-            null,
-            accelerometerReading,
-            magnetometerReading
-        )
+    private fun updateAngle(rotationArr: FloatArray) {
+        val mat = FloatArray(9)
+        SensorManager.getRotationMatrixFromVector(mat, rotationArr)
 
-        val orientation = SensorManager.getOrientation(rotationMatrix, orientationAngles)
-        val degrees = (Math.toDegrees(orientation[2].toDouble()) + 360.0) % 360.0
-        val angle = round(degrees * 100)/100
-        Log.d("SensorListener", "Angle is: $angle")
+        val (worldAxisForDeviceAxisX, worldAxisForDeviceAxisY) = when(mwindowManager.defaultDisplay.rotation) {
+            Surface.ROTATION_0 -> Pair(SensorManager.AXIS_X, SensorManager.AXIS_Z)
+            Surface.ROTATION_90 -> Pair(SensorManager.AXIS_Z, SensorManager.AXIS_MINUS_X)
+            Surface.ROTATION_180 -> Pair(SensorManager.AXIS_MINUS_X, SensorManager.AXIS_MINUS_Z)
+            Surface.ROTATION_270 -> Pair(SensorManager.AXIS_MINUS_Z, SensorManager.AXIS_X)
+            else -> Pair(SensorManager.AXIS_X, SensorManager.AXIS_Z)
+        }
+        val adjustedRotationMatrix = FloatArray(9)
+        SensorManager.remapCoordinateSystem(mat, worldAxisForDeviceAxisX, worldAxisForDeviceAxisY, adjustedRotationMatrix)
+
+        val orientation = FloatArray(3)
+        SensorManager.getOrientation(adjustedRotationMatrix, orientation)
+
+        val roll = orientation[2] * -57
+
+        tvAngle.text = "Roll: $roll"
+        cupView.tiltCoke(roll)
     }
 }

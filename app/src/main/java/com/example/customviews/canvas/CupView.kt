@@ -5,11 +5,15 @@ import android.graphics.*
 import android.util.AttributeSet
 import android.util.Log
 import android.view.View
-import kotlin.random.Random
+import kotlin.math.abs
 
 
 //Part3: We are trying to make a cup here using canvas and path
 class CupView(context: Context, attrs: AttributeSet?) : View(context, attrs) {
+
+    companion object {
+        const val deltaX = 0.3f
+    }
 
     //Part 3.1
     //we defined some variables, path will be used to draw on the canvas
@@ -21,9 +25,11 @@ class CupView(context: Context, attrs: AttributeSet?) : View(context, attrs) {
     private val cap2Path = Path()
     private val strawPath = Path()
     private val wavePath = Path()
-    private val bubblesPath = Path()
 
-    private var shouldShowBubbles: Boolean = false
+    private var tiltStartY = 0f
+    private var tiltEndY = 0f
+    private var tiltStartX = 0f
+    private var tiltEndX = 0f
 
 
     private val paint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
@@ -37,11 +43,6 @@ class CupView(context: Context, attrs: AttributeSet?) : View(context, attrs) {
         style = Paint.Style.FILL
     }
 
-    private val bubblesPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-        color = Color.parseColor("#B3E5FC")
-        style = Paint.Style.FILL
-    }
-
     //Part 3.2
     //we are not changing the size of the view, so even in wrap_content, view would take the entire space.
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
@@ -51,7 +52,10 @@ class CupView(context: Context, attrs: AttributeSet?) : View(context, attrs) {
 
         Log.d("Cup", "onMeasure")
 
-        drawBubbles()
+        tiltStartY = finalHeight / 2
+        tiltEndY = finalHeight / 2
+        tiltStartX = finalWidth / 6 + 18
+        tiltEndX = 5 * finalWidth / 6 - 18
     }
 
     override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
@@ -77,9 +81,6 @@ class CupView(context: Context, attrs: AttributeSet?) : View(context, attrs) {
         canvas.drawPath(cap2Path, paint)
         canvas.drawPath(strawPath, paint)
         canvas.drawPath(wavePath, cokePaint)
-        if (shouldShowBubbles) {
-            canvas.drawPath(bubblesPath, bubblesPaint)
-        }
     }
 
     //Part3.3 path.moveto is like placing the pencil on the paper, from that point forward you draw.
@@ -153,48 +154,45 @@ class CupView(context: Context, attrs: AttributeSet?) : View(context, attrs) {
     }
 
     private fun drawWave() {
-        wavePath.moveTo(finalWidth / 6 + 18, finalHeight / 2)
-        wavePath.cubicTo(
-            finalWidth / 3, finalHeight / 2 - 100,
-            3 * finalWidth / 5, finalHeight / 2 + 200,
-            5 * finalWidth / 6 - 18, finalHeight / 2 - 60
-        )
+        //reset the path, so that you draw fresh this time
+        wavePath.reset()
+        wavePath.moveTo(tiltStartX, tiltStartY)
+        wavePath.lineTo(tiltEndX, tiltEndY)
         cokePaint.pathEffect = CornerPathEffect(20f)
         wavePath.lineTo(5 * finalWidth / 6 - 73, 7 * finalHeight / 8 - 4)
         wavePath.lineTo(finalWidth / 6 + 52, 7 * finalHeight / 8 - 4)
-        wavePath.lineTo(finalWidth / 6 + 18, finalHeight / 2)
+        wavePath.lineTo(tiltStartX, tiltStartY)
 
     }
 
-    private fun drawBubbles() {
-        //reset the path, to remove all the previous paths stored, and start fresh
-        bubblesPath.reset()
-        val numOfBubbles = Random.nextInt(4, 8)
-        for (i in 1..numOfBubbles) {
-            val radius = Random.nextInt(20, 40).toFloat()
-            val x = Random.nextInt(
-                (finalWidth / 6 + 52 + 10 + radius).toInt(),
-                (5 * finalWidth / 6 - 73 - 10 - radius).toInt()
-            ).toFloat()
-
-            val y = Random.nextInt(
-                (finalHeight / 2 + 10 + radius).toInt(),
-                (7 * finalHeight / 8 - 4 - 1 - radius).toInt()
-            ).toFloat()
-            bubblesPath.addCircle(x, y, radius, Path.Direction.CW)
+    fun tiltCoke(angle: Float) {
+        tiltStartY = finalHeight / 2
+        tiltEndY = finalHeight / 2
+        tiltStartX = finalWidth / 6 + 18
+        tiltEndX = 5 * finalWidth / 6 - 18
+        val topLimit = 3 * finalHeight / 8
+        if (angle > 0) {
+            var i = 0
+            while (i <= angle.toInt() && tiltStartY >= topLimit) {
+                tiltStartY -= 5f
+                tiltEndY += 5f
+                tiltStartX -= deltaX
+                tiltEndX -= deltaX
+                i++
+            }
+        } else {
+            var i = 0
+            while (i <= abs(angle).toInt() && tiltEndY >= topLimit) {
+                tiltStartY += 5f
+                tiltEndY -= 5f
+                tiltStartX += 0.3f
+                tiltEndX += 0.3f
+                i++
+            }
         }
-    }
-
-    //this is the interaction that the user would do
-    fun showBubbles() {
-        Log.d("Cup", "show bubbles called")
-        shouldShowBubbles = !shouldShowBubbles
-        //it tells the view to measure itself again. but it doesn't tell it to redraw itself
-        requestLayout()
-        //it tells the view to redraw itself
+        //draw the new path
+        drawWave()
+        //invoke onDraw
         invalidate()
-
-        //why i used requestLayout() because I wanted to have draw the bubbles at random position, hence I used requestLayout()
-        //additionally onSizeChanged() is not called in requestLayout, that is why drawBubbles() is in measure, so that it draw new path always
     }
 }
