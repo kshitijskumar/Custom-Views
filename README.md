@@ -16,6 +16,7 @@ Also in a branch named "sensor-cup2" you'll find the code for the tilt cup, in t
 <img src="https://github.com/kshitijskumar/Custom-Views/blob/main/images/timer.gif" height=400> &nbsp;&nbsp;
 ### Tilt Cupview
 <img src="https://github.com/kshitijskumar/Custom-Views/blob/main/images/tiltCup.gif" height=400> &nbsp;&nbsp;
+
 (Roll is actually the angle through which I'm tilting my phone.)
-roll > 0 -> left tilt
-roll < 0 -> right tilt
+* roll > 0 -> left tilt
+* roll < 0 -> right tilt
