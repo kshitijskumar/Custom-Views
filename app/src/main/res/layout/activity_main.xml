@@ -6,32 +6,12 @@
     android:layout_height="match_parent"
     tools:context=".MainActivity">
 
-    <com.example.customviews.canvas.TimerView
-        android:id="@+id/timer"
+    <com.example.customviews.canvas.DotLoading
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"/>
-
-    <EditText
-        android:id="@+id/etTime"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:hint="In seconds"
-        app:layout_constraintTop_toBottomOf="@id/timer"
-        app:layout_constraintStart_toStartOf="@id/timer"
-        app:layout_constraintEnd_toEndOf="@id/timer"
-        android:inputType="number"/>
-
-    <Button
-        android:id="@+id/btnStart"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Start"
-        app:layout_constraintTop_toBottomOf="@id/etTime"
-        app:layout_constraintStart_toStartOf="@id/etTime"
-        app:layout_constraintEnd_toEndOf="@id/etTime"/>
+        app:layout_constraintTop_toTopOf="parent"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
