@@ -26,12 +26,22 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <com.example.customviews.canvas.CircleWaveLoading
+        android:id="@+id/waveLoading"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/dotLoading" />
+
+    <com.example.customviews.canvas.BounceLoading
+        android:id="@+id/bounceLoading"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toBottomOf="@id/waveLoading"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@id/waveLoading"
+        app:layout_constraintTop_toTopOf="@id/waveLoading" />
 
     <!--    <ProgressBar-->
     <!--        android:id="@+id/progressBar"-->
