@@ -43,6 +43,14 @@
         app:layout_constraintStart_toEndOf="@id/waveLoading"
         app:layout_constraintTop_toTopOf="@id/waveLoading" />
 
+    <com.example.customviews.canvas.Sharingan
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toBottomOf="@id/waveLoading"
+        app:layout_constraintEnd_toStartOf="@id/waveLoading"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@id/waveLoading" />
+
     <!--    <ProgressBar-->
     <!--        android:id="@+id/progressBar"-->
     <!--        style="?android:attr/progressBarStyle"-->
